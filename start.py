@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import subprocess
 import os
 import signal
@@ -9,7 +10,9 @@ import locale
 locale.setlocale(locale.LC_ALL, '')
 gi.require_version('Gtk', '3.0')
 gi.require_version('AppIndicator3', '0.1')
+gi.require_version('Notify', '0.7')
 from gi.repository import Gtk, AppIndicator3, GObject
+from gi.repository import Notify as notify
 from threading import Thread
 currpath = os.path.dirname(os.path.realpath(__file__))
 
@@ -28,6 +31,7 @@ class Indicator():
         # daemonize the thread to make the indicator stopable
         self.update.setDaemon(True)
         self.update.start()
+        notify.init(self.app)
 
     def create_menu(self):
         self.menu = Gtk.Menu()
@@ -41,13 +45,15 @@ class Indicator():
         return self.menu
 
     def background_monitor(self):
-        price = ''
-        btc_price = 0
+        btc_price = self.binance_btc_avg_price()
+        mark_price = btc_price
 
         while True:
             change = ''
             last_price = btc_price
             btc_price = self.binance_btc_avg_price()
+
+            mark_price = self.check_alert(btc_price, mark_price)
 
             if last_price > 0:
                 if btc_price > last_price:
@@ -56,14 +62,28 @@ class Indicator():
                     change = ' -'
 
             self.indicator.set_label(' $' + f'{btc_price:n}' + change, '')
-            time.sleep(5)
+            time.sleep(3)
+
+    def check_alert(self, price, mark_price):
+        delta = 100.0 * (price - mark_price) / mark_price
+
+        if delta > 1.0 or delta < -1.0:
+            self.alert(delta, price)
+            return price
+
+        return mark_price
+
+    def alert(self, delta, price):
+        price_label = ' $' + f'{price:n}'
+        delta_label = f'{delta:n}' + ' %'
+        notify.Notification.new("BTC  " + price_label, delta_label, None).show()
 
     def binance_btc_avg_price(self):
         try:
-            r = requests.get('https://api.binance.com/api/v3/avgPrice?symbol=BTCUSDT')
-            return int(r.json()['price'].split('.')[0])
+            r = requests.get('https://api.binance.com/api/v1/klines?symbol=BTCUSDT&interval=1m&limit=1')
+            return int(r.json()[0][4].split('.')[0])
         except:
-            return False
+            return 0
 
     def run_script(self, widget, script):
         subprocess.Popen(["/bin/bash", "-c", script])
