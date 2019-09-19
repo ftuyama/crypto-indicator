@@ -75,7 +75,7 @@ class Indicator():
 
     def check_alert(self, price, mark_price):
         delta = 100.0 * (price - mark_price) / mark_price
-        gain = 1.0 if self.symbol == 'egtusdt' else 0.1
+        gain = 0.15 if self.symbol == 'btcusdt' else 1.0
 
         if delta > gain or delta < -1 * gain:
             self.alert(delta, price)
