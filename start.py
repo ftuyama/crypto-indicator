@@ -7,6 +7,8 @@ import gi
 import time
 import requests
 import locale
+import time
+
 locale.setlocale(locale.LC_ALL, '')
 gi.require_version('Gtk', '3.0')
 gi.require_version('AppIndicator3', '0.1')
@@ -82,9 +84,10 @@ class Indicator():
         return mark_price
 
     def alert(self, delta, price):
+        date = time.strftime("%Y-%m-%d %H:%M:%S")
         price_label = ' $' + f'{price:n}'
         delta_label = f'{delta:n}' + ' %'
-        notify.Notification.new(self.symbol + " " + price_label, delta_label, None).show()
+        notify.Notification.new(self.symbol + " " + price_label, delta_label + " on " + date, None).show()
 
     def blockchain_btc_price(self):
         try:
