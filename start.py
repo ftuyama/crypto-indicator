@@ -61,7 +61,7 @@ class Indicator():
     def check_alert(self, price, mark_price):
         delta = 100.0 * (price - mark_price) / mark_price
 
-        if delta > 1.0 or delta < -1.0:
+        if delta > 0.1 or delta < -0.1:
             self.alert(delta, price)
             return price
 
@@ -76,21 +76,24 @@ class Indicator():
         try:
             r = requests.get('https://blockchain.info/ticker')
             return r.json()['USD']['last']
-        except:
+        except Exception as e:
+            notify.Notification.new("Error " + str(e), delta_label, None).show()
             return 0
 
     def huobi_btc_price(self):
         try:
             r = requests.get('https://api.huobi.pro/market/detail/merged?symbol=btcusdt')
             return round(r.json()['tick']['close'])
-        except:
+        except Exception as e:
+            notify.Notification.new("Error " + str(e), delta_label, None).show()
             return 0
 
     def binance_btc_avg_price(self):
         try:
             r = requests.get('https://api.binance.com/api/v1/klines?symbol=BTCUSDT&interval=1m&limit=1')
             return int(r.json()[0][4].split('.')[0])
-        except:
+        except Exception as e:
+            notify.Notification.new("Error " + str(e), delta_label, None).show()
             return 0
 
     def run_script(self, widget, script):
