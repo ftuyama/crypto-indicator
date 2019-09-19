@@ -45,21 +45,15 @@ class Indicator():
         return self.menu
 
     def background_monitor(self):
-        btc_price = self.binance_btc_avg_price()
+        btc_price = self.huobi_btc_price()
         mark_price = btc_price
 
         while True:
             change = ''
             last_price = btc_price
-            btc_price = self.binance_btc_avg_price()
+            btc_price = self.huobi_btc_price()
 
             mark_price = self.check_alert(btc_price, mark_price)
-
-            if last_price > 0:
-                if btc_price > last_price:
-                    change = ' +'
-                elif btc_price < last_price:
-                    change = ' -'
 
             self.indicator.set_label(' $' + f'{btc_price:n}' + change, '')
             time.sleep(3)
@@ -77,6 +71,20 @@ class Indicator():
         price_label = ' $' + f'{price:n}'
         delta_label = f'{delta:n}' + ' %'
         notify.Notification.new("BTC  " + price_label, delta_label, None).show()
+
+    def blockchain_btc_price(self):
+        try:
+            r = requests.get('https://blockchain.info/ticker')
+            return r.json()['USD']['last']
+        except:
+            return 0
+
+    def huobi_btc_price(self):
+        try:
+            r = requests.get('https://api.huobi.pro/market/detail/merged?symbol=btcusdt')
+            return round(r.json()['tick']['close'])
+        except:
+            return 0
 
     def binance_btc_avg_price(self):
         try:
