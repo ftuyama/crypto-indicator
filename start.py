@@ -16,9 +16,11 @@ from gi.repository import Notify as notify
 from threading import Thread
 currpath = os.path.dirname(os.path.realpath(__file__))
 
+coins = ['btc', 'eth', 'ae', 'link', 'eos', 'ht', 'dock', 'egt']
 
 class Indicator():
     def __init__(self):
+        self.symbol = 'btcusdt'
         self.app = 'update_setting'
         self.path = currpath
         self.indicator = AppIndicator3.Indicator.new(
@@ -35,6 +37,12 @@ class Indicator():
 
     def create_menu(self):
         self.menu = Gtk.Menu()
+
+        for coin in coins:
+            item = Gtk.MenuItem(coin.upper() + '/USDT')
+            item.connect('activate', self.select_coin)
+            self.menu.append(item)
+
         # quit
         item_quit = Gtk.MenuItem('Quit')
         sep = Gtk.SeparatorMenuItem()
@@ -44,6 +52,11 @@ class Indicator():
         self.menu.show_all()
         return self.menu
 
+    def select_coin(self, item):
+        coin = item.get_label().split('/')[0].lower()
+        self.symbol = coin + 'usdt'
+        self.indicator.set_icon(currpath + "/icons/" + coin + ".png")
+
     def background_monitor(self):
         btc_price = self.huobi_btc_price()
         mark_price = btc_price
@@ -51,17 +64,18 @@ class Indicator():
         while True:
             change = ''
             last_price = btc_price
-            btc_price = self.huobi_btc_price()
+            btc_price = self.huobi_btc_price() or last_price
 
             mark_price = self.check_alert(btc_price, mark_price)
 
             self.indicator.set_label(' $' + f'{btc_price:n}' + change, '')
-            time.sleep(3)
+            time.sleep(1)
 
     def check_alert(self, price, mark_price):
         delta = 100.0 * (price - mark_price) / mark_price
+        gain = 1.0 if self.symbol == 'egtusdt' else 0.1
 
-        if delta > 0.1 or delta < -0.1:
+        if delta > gain or delta < -1 * gain:
             self.alert(delta, price)
             return price
 
@@ -70,31 +84,32 @@ class Indicator():
     def alert(self, delta, price):
         price_label = ' $' + f'{price:n}'
         delta_label = f'{delta:n}' + ' %'
-        notify.Notification.new("BTC  " + price_label, delta_label, None).show()
+        notify.Notification.new(self.symbol + " " + price_label, delta_label, None).show()
 
     def blockchain_btc_price(self):
         try:
             r = requests.get('https://blockchain.info/ticker')
             return r.json()['USD']['last']
         except Exception as e:
-            notify.Notification.new("Error " + str(e), delta_label, None).show()
-            return 0
+            return None
 
     def huobi_btc_price(self):
         try:
-            r = requests.get('https://api.huobi.pro/market/detail/merged?symbol=btcusdt')
-            return round(r.json()['tick']['close'])
+            r = requests.get('https://api.huobi.pro/market/detail/merged?symbol=' + self.symbol)
+
+            if self.symbol == 'btcusdt':
+                return round(r.json()['tick']['close'])
+            else:
+                return r.json()['tick']['close']
         except Exception as e:
-            notify.Notification.new("Error " + str(e), delta_label, None).show()
-            return 0
+            return None
 
     def binance_btc_avg_price(self):
         try:
-            r = requests.get('https://api.binance.com/api/v1/klines?symbol=BTCUSDT&interval=1m&limit=1')
+            r = requests.get('https://api.binance.com/api/v1/klines?symbol=' + self.symbol.upper() + 'USDT&interval=1m&limit=1')
             return int(r.json()[0][4].split('.')[0])
         except Exception as e:
-            notify.Notification.new("Error " + str(e), delta_label, None).show()
-            return 0
+            return None
 
     def run_script(self, widget, script):
         subprocess.Popen(["/bin/bash", "-c", script])
