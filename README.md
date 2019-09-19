@@ -1,6 +1,6 @@
 # BTC Price Indicator
 
-Indicates current BTC price on Ubuntu navbar, using Binance API.
+Indicates current cryptocoins (such as BTC) price ticker on Ubuntu navbar, using Binance, Huobi or Blockchain API.
 
 ### Price Indicator
 
