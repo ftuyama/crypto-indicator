@@ -60,7 +60,7 @@ class Indicator():
         self.indicator.set_icon(currpath + "/icons/" + coin + ".png")
 
     def background_monitor(self):
-        btc_price = self.huobi_btc_price()
+        btc_price = self.binance_futures_price()
         mark_price = btc_price
 
         while True:
@@ -75,7 +75,7 @@ class Indicator():
 
     def check_alert(self, price, mark_price):
         delta = 100.0 * (price - mark_price) / mark_price
-        gain = 0.15 if self.symbol == 'btcusdt' else 1.0
+        gain = 0.2 if self.symbol == 'btcusdt' else 1.0
 
         if delta > gain or delta < -1 * gain:
             self.alert(delta, price)
@@ -104,6 +104,13 @@ class Indicator():
                 return round(r.json()['tick']['close'])
             else:
                 return r.json()['tick']['close']
+        except Exception as e:
+            return None
+
+    def binance_futures_price(self):
+        try:
+            r = requests.get('https://fapi.binance.com/fapi/v1/ticker/price?symbol=BTCUSDT')
+            return float(r.json()['price'])
         except Exception as e:
             return None
 
