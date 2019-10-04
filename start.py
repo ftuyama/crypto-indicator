@@ -5,9 +5,12 @@ import os
 import signal
 import gi
 import time
-import requests
 import locale
 import time
+import sys
+
+from api.api import Api
+from api.websocket import Websocket
 
 locale.setlocale(locale.LC_ALL, '')
 gi.require_version('Gtk', '3.0')
@@ -19,9 +22,14 @@ from threading import Thread
 currpath = os.path.dirname(os.path.realpath(__file__))
 
 coins = ['btc', 'eth', 'ae', 'link', 'eos', 'ht', 'dock', 'egt']
+sources = ['Binance', 'Binance Futures', 'Huobi']
+source = sources[1]
 
 class Indicator():
     def __init__(self):
+        self.api = Api()
+        self.websocket = Websocket()
+
         self.symbol = 'btcusdt'
         self.app = 'update_setting'
         self.path = currpath
@@ -30,20 +38,25 @@ class Indicator():
             AppIndicator3.IndicatorCategory.SYSTEM_SERVICES)
         self.indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
         self.indicator.set_menu(self.create_menu())
-        # the thread:
-        self.update = Thread(target=self.background_monitor)
-        # daemonize the thread to make the indicator stopable
-        self.update.setDaemon(True)
-        self.update.start()
+
+        if source == 'Binance Futures':
+            self.indicator.set_icon(currpath + "/icons/btcf.png")
+            Thread(target=self.websocket.start_ws, args=[self]).start()
+        else:
+            self.update = Thread(target=self.background_monitor)
+            self.update.setDaemon(True)
+            self.update.start()
+
         notify.init(self.app)
 
     def create_menu(self):
         self.menu = Gtk.Menu()
 
-        for coin in coins:
-            item = Gtk.MenuItem(coin.upper() + '/USDT')
-            item.connect('activate', self.select_coin)
-            self.menu.append(item)
+        if source == 'Huobi':
+            for coin in coins:
+                item = Gtk.MenuItem(coin.upper() + '/USDT')
+                item.connect('activate', self.select_coin)
+                self.menu.append(item)
 
         # quit
         item_quit = Gtk.MenuItem('Quit')
@@ -59,23 +72,27 @@ class Indicator():
         self.symbol = coin + 'usdt'
         self.indicator.set_icon(currpath + "/icons/" + coin + ".png")
 
+    """Core methods
+
+        These methods do a lot of stuff
+    """
     def background_monitor(self):
-        btc_price = self.binance_futures_price()
-        mark_price = btc_price
+        symbol_price = self.api.huobi_symbol_price(self.symbol)
+        mark_price = symbol_price
 
         while True:
             change = ''
-            last_price = btc_price
-            btc_price = self.huobi_btc_price() or last_price
+            last_price = symbol_price
+            symbol_price = self.api.huobi_symbol_price(self.symbol) or last_price
 
-            mark_price = self.check_alert(btc_price, mark_price)
+            mark_price = self.check_alert(symbol_price, mark_price)
 
-            self.indicator.set_label(' $' + f'{btc_price:n}' + change, '')
+            self.indicator.set_label(' $' + f'{symbol_price:n}' + change, '')
             time.sleep(1)
 
     def check_alert(self, price, mark_price):
         delta = 100.0 * (price - mark_price) / mark_price
-        gain = 0.2 if self.symbol == 'btcusdt' else 1.0
+        gain = 0.3 if self.symbol == 'btcusdt' else 1.0
 
         if delta > gain or delta < -1 * gain:
             self.alert(delta, price)
@@ -89,43 +106,9 @@ class Indicator():
         delta_label = f'{delta:n}' + ' %'
         notify.Notification.new(self.symbol + " " + price_label, delta_label + " on " + date, None).show()
 
-    def blockchain_btc_price(self):
-        try:
-            r = requests.get('https://blockchain.info/ticker')
-            return r.json()['USD']['last']
-        except Exception as e:
-            return None
-
-    def huobi_btc_price(self):
-        try:
-            r = requests.get('https://api.huobi.pro/market/detail/merged?symbol=' + self.symbol)
-
-            if self.symbol == 'btcusdt':
-                return round(r.json()['tick']['close'])
-            else:
-                return r.json()['tick']['close']
-        except Exception as e:
-            return None
-
-    def binance_futures_price(self):
-        try:
-            r = requests.get('https://fapi.binance.com/fapi/v1/ticker/price?symbol=BTCUSDT')
-            return float(r.json()['price'])
-        except Exception as e:
-            return None
-
-    def binance_btc_avg_price(self):
-        try:
-            r = requests.get('https://api.binance.com/api/v1/klines?symbol=' + self.symbol.upper() + 'USDT&interval=1m&limit=1')
-            return int(r.json()[0][4].split('.')[0])
-        except Exception as e:
-            return None
-
-    def run_script(self, widget, script):
-        subprocess.Popen(["/bin/bash", "-c", script])
-
     def stop(self, source):
         Gtk.main_quit()
+        sys.exit(0)
 
 
 Indicator()

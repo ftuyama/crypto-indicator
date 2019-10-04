@@ -1,3 +1,4 @@
 {
-    "python.pythonPath": "/home/tuyama/.venv/btc-indicator/bin/python"
+    "python.pythonPath": "/home/tuyama/.venv/btc-indicator/bin/python",
+    "python.linting.enabled": false
 }
