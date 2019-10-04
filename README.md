@@ -14,5 +14,9 @@ Indicates current cryptocoins (such as BTC) price ticker on Ubuntu navbar, using
 Start indicator using:
 
 ```Sh
-(python3 start.py &)
+python3 start.py &
+
+or
+
+./start.sh
 ```
