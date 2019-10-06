@@ -23,7 +23,7 @@ class ImageUtil():
 
         points = [(t, data[t]) for t in range(129)]
 
-        draw.polygon(points, fill='blue')
+        draw.polygon(points, fill='#98fb98')
         im.save('assets/chart/chart.png')
 
     def side_by_side(self, imgs):
@@ -40,7 +40,8 @@ class ImageUtil():
             new_im.paste(im, (x_offset, 0))
             x_offset += im.size[0]
 
-        icon_name = f'assets/chart/icon{random.randint(1, 11)}.png'
+        index = random.randint(1, 11)
+        icon_name = f'assets/chart/icon{index}.png'
         new_im.save(icon_name)
 
         return icon_name

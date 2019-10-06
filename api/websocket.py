@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from api.api import Api
+# from api.api import Api
 import json
 import websocket
 import os
@@ -17,12 +17,12 @@ def on_message(ws, message):
     self.btc_price = int(float(json.loads(message)["data"]["c"]))
     self.mark_price = self.check_alert(self.btc_price, self.mark_price)
 
-    self.data.append(self.btc_price)
-    self.data = self.data[-120:]
+    # self.data.append(self.btc_price)
+    # self.data = self.data[-120:]
 
-    icon = self.image_util.generate_icon(self.data)
+    # icon = self.image_util.generate_icon(self.data)
+    # self.indicator.set_icon(currpath + f"/../{icon}")
     self.indicator.set_label(' $' + f'{self.btc_price:n}', '')
-    self.indicator.set_icon(currpath + f"/../{icon}")
 
 def on_error(ws, error):
     print(error)
@@ -44,6 +44,6 @@ class Websocket():
         ws.father = father
         ws.father.btc_price = 1
         ws.father.mark_price = 1
-        ws.father.data = Api().binance_futures_history()
+        # ws.father.data = Api().binance_futures_history()
 
         ws.run_forever()
