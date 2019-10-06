@@ -15,6 +15,15 @@ class Api():
             print(e)
             return None
 
+    def binance_futures_history(self):
+        try:
+            r = requests.get('https://fapi.binance.com/fapi/v1/klines?symbol=BTCUSDT&interval=1m')
+            data = r.json()
+            return [int(float(d[4])) for d in data]
+        except Exception as e:
+            print(e)
+            return None
+
     def binance_futures_price(self):
         try:
             r = requests.get('https://fapi.binance.com/fapi/v1/ticker/price?symbol=BTCUSDT')

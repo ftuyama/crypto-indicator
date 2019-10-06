@@ -11,6 +11,7 @@ import sys
 
 from api.api import Api
 from api.websocket import Websocket
+from utils.image import ImageUtil
 
 locale.setlocale(locale.LC_ALL, '')
 gi.require_version('Gtk', '3.0')
@@ -29,6 +30,7 @@ class Indicator():
     def __init__(self):
         self.api = Api()
         self.websocket = Websocket()
+        self.image_util = ImageUtil("btcf")
 
         self.symbol = 'btcusdt'
         self.app = 'update_setting'
