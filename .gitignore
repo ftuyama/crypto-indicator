@@ -2,3 +2,4 @@
 nohup.out
 *.pyc
 .pyc
+icon*.png
