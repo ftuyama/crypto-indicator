@@ -22,7 +22,7 @@ def on_message(ws, message):
 
     icon = self.image_util.generate_icon(self.data)
     self.indicator.set_label(' $' + f'{self.btc_price:n}', '')
-    self.indicator.set_attention_icon(currpath + f"/../{icon}")
+    self.indicator.set_icon(currpath + f"/../{icon}")
 
 def on_error(ws, error):
     print(error)
