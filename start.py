@@ -17,7 +17,7 @@ locale.setlocale(locale.LC_ALL, '')
 gi.require_version('Gtk', '3.0')
 gi.require_version('AppIndicator3', '0.1')
 gi.require_version('Notify', '0.7')
-from gi.repository import Gtk, AppIndicator3, GObject
+from gi.repository import Gtk, AppIndicator3
 from gi.repository import Notify as notify
 from threading import Thread
 currpath = os.path.dirname(os.path.realpath(__file__))
