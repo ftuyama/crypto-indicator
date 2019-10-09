@@ -7,7 +7,7 @@ Indicates current cryptocoins (such as BTC) price ticker on Ubuntu navbar, using
 - Blockchain API
 - Binance Futures Websocket
 
-### Price Indicator
+## Price Indicator
 
 ![Screenshot](/assets/screenshot.png?raw=true "Screenshot")
 

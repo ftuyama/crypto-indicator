@@ -7,7 +7,7 @@ class Api():
 
         These methods manipulate API
     """
-    def blockchain_btc_price(self):
+    def blockchain_btc_price(self, symbol):
         try:
             r = requests.get('https://blockchain.info/ticker')
             return r.json()['USD']['last']
