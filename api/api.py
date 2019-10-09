@@ -46,8 +46,12 @@ class Api():
 
     def binance_symbol_avg_price(self, symbol):
         try:
-            r = requests.get('https://api.binance.com/api/v1/klines?symbol=' + symbol.upper() + 'USDT&interval=1m&limit=1')
-            return int(r.json()[0][4].split('.')[0])
+            r = requests.get('https://api.binance.com/api/v1/klines?symbol=' + symbol.upper() + '&interval=1m&limit=1')
+
+            if symbol == 'btcusdt':
+                return round(float(r.json()[0][4]))
+            else:
+                return float(r.json()[0][4])
         except Exception as e:
             print(e)
             return None

@@ -34,16 +34,23 @@ def on_open(ws):
     print("### open websocket ###")
 
 class Websocket():
+    def __init__(self):
+        self.ws = None
+
     def start_ws(self, father):
-        ws = websocket.WebSocketApp("wss://fstream.binance.com/stream?streams=btcusdt@miniTicker",
+        self.ws = websocket.WebSocketApp("wss://fstream.binance.com/stream?streams=btcusdt@miniTicker",
                                 on_message = on_message,
                                 on_error = on_error,
                                 on_close = on_close)
 
-        ws.on_open = on_open
-        ws.father = father
-        ws.father.btc_price = 1
-        ws.father.mark_price = 1
+        self.ws.on_open = on_open
+        self.ws.father = father
+        self.ws.father.btc_price = 1
+        self.ws.father.mark_price = 1
         # ws.father.data = Api().binance_futures_history()
 
-        ws.run_forever()
+        self.ws.run_forever()
+
+    def close_ws(self):
+        if self.ws is not None:
+            self.ws.close()

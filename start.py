@@ -25,7 +25,7 @@ from threading import Thread
 currpath = os.path.dirname(os.path.realpath(__file__))
 
 coins = ['btc', 'eth', 'ae', 'link', 'eos', 'ht', 'dock', 'egt']
-sources = ['Binance', 'Binance Futures', 'Huobi']
+sources = ['Binance Futures', 'Binance', 'Huobi', 'Blockchain']
 
 class Indicator():
     def __init__(self):
@@ -33,8 +33,9 @@ class Indicator():
         self.websocket = Websocket()
         self.image_util = ImageUtil("btcf")
 
+        self.last_source = None
         self.update = None
-        self.source = sources[1]
+        self.source = sources[0]
         self.symbol = 'btcusdt'
         self.app = 'update_setting'
 
@@ -50,9 +51,11 @@ class Indicator():
         notify.init(self.app)
 
     def start_source(self):
-        # if self.update is not None:
-        #     self.update._stop()
-        #     self.update = None
+        if self.source == self.last_source:
+            return
+
+        self.last_source = self.source
+        self.websocket.close_ws()
 
         if self.source == 'Binance Futures':
             self.indicator.set_icon(currpath + "/icons/btcf.png")
@@ -99,7 +102,8 @@ class Indicator():
         return self.menu
 
     def select_source(self, item):
-        self.source = item.get_label()
+        source = item.get_label()
+        self.source = source
         self.start_source()
 
     def select_coin(self, item):
@@ -111,17 +115,29 @@ class Indicator():
 
         These methods do a lot of stuff
     """
+    def get_monitor(self):
+        if self.source == 'Binance':
+            return self.api.binance_symbol_avg_price
+        elif self.source == 'Huobi':
+            return self.api.huobi_symbol_price
+        elif self.source == 'Blockchain':
+            return self.api.blockchain_btc_price
+        else:
+            return self.api.blockchain_btc_price
+
     def background_monitor(self):
         symbol_price = self.api.huobi_symbol_price(self.symbol)
         mark_price = symbol_price
         print(f"### start {self.source} monitor ###")
 
-        while True:
+        monitor = self.get_monitor()
+        source = self.source
+
+        while source == self.source and monitor is not None:
             change = ''
             last_price = symbol_price
-            monitor = self.api.binance_symbol_avg_price if self.source == 'Binance' else self.api.huobi_symbol_price
-            symbol_price = monitor(self.symbol) or last_price
 
+            symbol_price = monitor(self.symbol) or last_price
             mark_price = self.check_alert(symbol_price, mark_price)
 
             self.indicator.set_label(' $' + f'{symbol_price:n}' + change, '')
