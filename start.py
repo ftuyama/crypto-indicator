@@ -6,12 +6,12 @@ import signal
 import gi
 import time
 import locale
-import time
 import sys
 
 from api.api import Api
 from api.websocket import Websocket
 from utils.image import ImageUtil
+from utils.notification import Alert
 
 locale.setlocale(locale.LC_ALL, '')
 gi.require_version('Gtk', '3.0')
@@ -38,6 +38,7 @@ class Indicator():
         self.source = sources[0]
         self.symbol = 'btcusdt'
         self.app = 'update_setting'
+        self.alert = Alert()
 
         self.path = currpath
         self.indicator = AppIndicator3.Indicator.new(
@@ -126,38 +127,17 @@ class Indicator():
             return self.api.blockchain_btc_price
 
     def background_monitor(self):
-        symbol_price = self.api.huobi_symbol_price(self.symbol)
-        mark_price = symbol_price
         print(f"### start {self.source} monitor ###")
 
         monitor = self.get_monitor()
         source = self.source
 
         while source == self.source and monitor is not None:
-            change = ''
-            last_price = symbol_price
+            symbol_price = monitor(self.symbol)
+            self.alert.check_alert(self.symbol, symbol_price)
 
-            symbol_price = monitor(self.symbol) or last_price
-            mark_price = self.check_alert(symbol_price, mark_price)
-
-            self.indicator.set_label(' $' + f'{symbol_price:n}' + change, '')
+            self.indicator.set_label(f' ${symbol_price:n}', '')
             time.sleep(1)
-
-    def check_alert(self, price, mark_price):
-        delta = 100.0 * (price - mark_price) / mark_price
-        gain = 0.3 if self.symbol == 'btcusdt' else 1.0
-
-        if delta > gain or delta < -1 * gain:
-            self.alert(delta, price)
-            return price
-
-        return mark_price
-
-    def alert(self, delta, price):
-        date = time.strftime("%Y-%m-%d %H:%M:%S")
-        price_label = ' $' + f'{price:n}'
-        delta_label = f'{delta:n}' + ' %'
-        notify.Notification.new(self.symbol + " " + price_label, delta_label + " on " + date, None).show()
 
     def stop(self, _arg):
         Gtk.main_quit()
