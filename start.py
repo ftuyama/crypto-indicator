@@ -6,7 +6,6 @@ import signal
 import gi
 import time
 import locale
-import sys
 
 from api.api import Api
 from api.websocket import Websocket
@@ -140,8 +139,8 @@ class Indicator():
             time.sleep(1)
 
     def stop(self, _arg):
+        self.websocket.close_ws()
         Gtk.main_quit()
-        sys.exit(0)
 
 
 Indicator()
