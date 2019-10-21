@@ -25,7 +25,7 @@ class Alert():
             return
 
         delta = 100.0 * (price - self.last_price) / self.last_price
-        gain = 0.3 if symbol == 'btcusdt' else 1.0
+        gain = 0.25 if symbol == 'btcusdt' else 1.0
         self.last_price = price
 
         self.custom_notification(price)
@@ -41,7 +41,7 @@ class Alert():
 
     def custom_notification(self, price):
         self.timer += 1
-        if self.timer % 60 == 0:
+        if self.timer % 30 == 0:
             self.mark_price = price
             self.timer = 1
 
@@ -53,15 +53,15 @@ class Alert():
 
         if big_delta > 0.9:
             self.alert_sound('YES.mp3')
-        elif big_delta > 0.6:
+        elif big_delta > 0.5:
             self.alert_sound('great.mp3')
-        elif big_delta > 0.3:
+        elif big_delta > 0.25:
             self.alert_sound('good.wav')
         elif big_delta < -0.9:
             self.alert_sound('nuclear.wav')
-        elif big_delta < -0.6:
+        elif big_delta < -0.5:
             self.alert_sound('alert.wav')
-        elif big_delta < -0.3:
+        elif big_delta < -0.25:
             self.alert_sound('beep.wav')
         else:
             return
