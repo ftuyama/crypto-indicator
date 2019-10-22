@@ -25,14 +25,19 @@ class Alert():
             return
 
         delta = 100.0 * (price - self.last_price) / self.last_price
-        gain = 0.25 if symbol == 'btcusdt' else 1.0
+        gain = 0.2 if symbol == 'btcusdt' else 0.5
+        super_gain = 0.35 if symbol == 'btcusdt' else 1.0
         self.last_price = price
 
         self.custom_notification(price)
 
         if symbol == 'btcusdt':
-            if delta > gain:
+            if delta > super_gain:
+                self.alert_sound('great.mp3')
+            elif delta > gain:
                 self.alert_sound('good.wav')
+            elif delta < -1 * super_gain:
+                self.alert_sound('wrong.wav')
             elif delta < -1 * gain:
                 self.alert_sound('beep.wav')
 
