@@ -56,13 +56,13 @@ class Alert():
 
         big_delta = 100.0 * (price - self.mark_price) / self.mark_price
 
-        if big_delta > 0.9:
+        if big_delta > 0.75:
             self.alert_sound('YES.mp3')
         elif big_delta > 0.5:
             self.alert_sound('great.mp3')
         elif big_delta > 0.25:
             self.alert_sound('good.wav')
-        elif big_delta < -0.9:
+        elif big_delta < -0.75:
             self.alert_sound('nuclear.wav')
         elif big_delta < -0.5:
             self.alert_sound('alert.wav')
