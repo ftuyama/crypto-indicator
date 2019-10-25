@@ -7,48 +7,45 @@ import os
 
 currpath = os.path.dirname(os.path.realpath(__file__))
 
-"""Websocket methods
-
-    These methods manipulate websocket
-"""
-def on_message(ws, message):
-    self = ws.father
-
-    self.btc_price = int(float(json.loads(message)["data"]["c"]))
-    self.alert.check_alert(self.symbol, self.btc_price)
-
-    # self.data.append(self.btc_price)
-    # self.data = self.data[-120:]
-
-    # icon = self.image_util.generate_icon(self.data)
-    # self.indicator.set_icon(currpath + f"/../{icon}")
-    self.indicator.set_label(f' ${self.btc_price:n}', '')
-
-def on_error(ws, error):
-    print(error)
-
-def on_close(ws):
-    print("### closed websocket ###")
-
-def on_open(ws):
-    print("### open websocket ###")
-
 class Websocket():
     def __init__(self):
         self.ws = None
 
     def start_ws(self, father):
         self.ws = websocket.WebSocketApp("wss://fstream.binance.com/stream?streams=btcusdt@miniTicker",
-                                on_message = on_message,
-                                on_error = on_error,
-                                on_close = on_close)
+                                on_message = lambda ws, msg: self.on_message(ws, msg),
+                                on_error = lambda ws, msg: self.on_error(ws, msg),
+                                on_close = lambda ws, msg: self.on_close(ws, msg))
 
         self.ws.on_open = on_open
-        self.ws.father = father
-        # ws.father.data = Api().binance_futures_history()
+        # self.data = Api().binance_futures_history()
 
         self.ws.run_forever()
 
     def close_ws(self):
         if self.ws is not None:
             self.ws.close()
+
+    """Websocket methods
+
+        These methods manipulate websocket
+    """
+    def on_message(self, ws, message):
+        self.btc_price = int(float(json.loads(message)["data"]["c"]))
+        self.alert.check_alert(self.symbol, self.btc_price)
+
+        # self.data.append(self.btc_price)
+        # self.data = self.data[-120:]
+
+        # icon = self.image_util.generate_icon(self.data)
+        # self.indicator.set_icon(currpath + f"/../{icon}")
+        self.indicator.set_label(f' ${self.btc_price:n}', '')
+
+    def on_error(self, ws, error):
+        print(error)
+
+    def on_close(self, ws):
+        print("### closed websocket ###")
+
+    def on_open(self, ws):
+        print("### open websocket ###")
