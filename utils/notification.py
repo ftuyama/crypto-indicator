@@ -14,6 +14,22 @@ class Alert():
         self.last_price = None
         self.last_symbol = None
 
+    def symbol_gain(self, symbol):
+        if symbol == 'btcusdt':
+            return 0.2
+        elif symbol == 'dockusdt':
+            return 1.0
+        else:
+            return 0.5
+
+    def symbol_super_gain(self, symbol):
+        if symbol == 'btcusdt':
+            return 0.35
+        elif symbol == 'dockusdt':
+            return 2.0
+        else:
+            return 1.0
+
     def check_alert(self, symbol, price):
         if symbol != self.last_symbol:
             self.last_symbol = symbol
@@ -25,8 +41,8 @@ class Alert():
             return
 
         delta = 100.0 * (price - self.last_price) / self.last_price
-        gain = 0.2 if symbol == 'btcusdt' else 0.5
-        super_gain = 0.35 if symbol == 'btcusdt' else 1.0
+        gain = self.symbol_gain(symbol)
+        super_gain = self.symbol_super_gain(symbol)
         self.last_price = price
 
         self.custom_notification(price)
@@ -55,18 +71,19 @@ class Alert():
             return
 
         big_delta = 100.0 * (price - self.mark_price) / self.mark_price
+        gain = self.symbol_gain(symbol)
 
-        if big_delta > 0.75:
+        if big_delta > 3 * gain:
             self.alert_sound('YES.mp3')
-        elif big_delta > 0.5:
+        elif big_delta > 2 * gain:
             self.alert_sound('great.mp3')
-        elif big_delta > 0.25:
+        elif big_delta > 1 * gain:
             self.alert_sound('good.wav')
-        elif big_delta < -0.75:
+        elif big_delta < 3 * gain:
             self.alert_sound('nuclear.wav')
-        elif big_delta < -0.5:
+        elif big_delta < -2 * gain:
             self.alert_sound('alert.wav')
-        elif big_delta < -0.25:
+        elif big_delta < -1 * gain:
             self.alert_sound('beep.wav')
         else:
             return
