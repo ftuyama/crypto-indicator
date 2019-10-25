@@ -45,7 +45,7 @@ class Alert():
         super_gain = self.symbol_super_gain(symbol)
         self.last_price = price
 
-        self.custom_notification(price)
+        self.custom_notification(symbol, price)
 
         if symbol == 'btcusdt':
             if delta > super_gain:
@@ -60,7 +60,7 @@ class Alert():
         if delta > gain or delta < -1 * gain:
             self.alert_notification(symbol, delta, price)
 
-    def custom_notification(self, price):
+    def custom_notification(self, symbol, price):
         self.timer += 1
         if self.timer % 30 == 0:
             self.mark_price = price
@@ -79,7 +79,7 @@ class Alert():
             self.alert_sound('great.mp3')
         elif big_delta > 1 * gain:
             self.alert_sound('good.wav')
-        elif big_delta < 3 * gain:
+        elif big_delta < -3 * gain:
             self.alert_sound('nuclear.wav')
         elif big_delta < -2 * gain:
             self.alert_sound('alert.wav')

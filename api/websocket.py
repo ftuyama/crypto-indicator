@@ -14,12 +14,12 @@ class Websocket():
     def start_ws(self, father):
         self.ws = websocket.WebSocketApp("wss://fstream.binance.com/stream?streams=btcusdt@miniTicker",
                                 on_message = lambda ws, msg: self.on_message(ws, msg),
-                                on_error = lambda ws, msg: self.on_error(ws, msg),
-                                on_close = lambda ws, msg: self.on_close(ws, msg))
+                                on_error = lambda ws, error: self.on_error(ws, error),
+                                on_open = lambda ws: self.on_open(ws),
+                                on_close = lambda ws: self.on_close(ws))
 
-        self.ws.on_open = on_open
         # self.data = Api().binance_futures_history()
-
+        self.father = father
         self.ws.run_forever()
 
     def close_ws(self):
@@ -31,6 +31,7 @@ class Websocket():
         These methods manipulate websocket
     """
     def on_message(self, ws, message):
+        self = self.father
         self.btc_price = int(float(json.loads(message)["data"]["c"]))
         self.alert.check_alert(self.symbol, self.btc_price)
 
