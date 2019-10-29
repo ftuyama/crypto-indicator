@@ -40,8 +40,6 @@ class Alert():
         gain = self.symbol_gain(symbol)
         self.last_price = price
 
-        self.custom_notification(symbol, price)
-
         if symbol == 'btcusdt':
             if delta > 2 * gain:
                 self.alert_sound('great.mp3')

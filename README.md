@@ -6,6 +6,9 @@ Indicates current cryptocoins (such as BTC) price ticker on Ubuntu navbar, using
 - Huobi API
 - Blockchain API
 - Binance Futures Websocket
+- Coinsbit
+
+Includes sonore alarms and os native notifications.
 
 ## Price Indicator
 

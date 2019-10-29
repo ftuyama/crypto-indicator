@@ -23,8 +23,8 @@ from threading import Thread
 
 currpath = os.path.dirname(os.path.realpath(__file__))
 
-coins = ['btc', 'eth', 'ae', 'link', 'eos', 'ht', 'dock', 'egt']
-sources = ['Binance Futures', 'Binance', 'Huobi', 'Blockchain']
+coins = ['btc', 'eth', 'ae', 'link', 'eos', 'ht', 'dock', 'egt', 'ksh']
+sources = ['Binance Futures', 'Binance', 'Huobi', 'Blockchain', 'Coinsbit']
 
 class Indicator():
     def __init__(self):
@@ -84,7 +84,11 @@ class Indicator():
 
         group = []
         for coin in coins:
-            item = Gtk.RadioMenuItem.new_with_label(group, coin.upper() + '/USDT')
+            if coin == 'ksh':
+                symbol = coin.upper() + '/BTC'
+            else:
+                symbol = coin.upper() + '/USDT'
+            item = Gtk.RadioMenuItem.new_with_label(group, symbol)
             group = item.get_group()
             item.connect('activate', self.select_coin)
             self.menu.append(item)
@@ -108,7 +112,10 @@ class Indicator():
 
     def select_coin(self, item):
         coin = item.get_label().split('/')[0].lower()
-        self.symbol = coin + 'usdt'
+        if coin == 'ksh':
+            self.symbol = 'kshbtc'
+        else:
+            self.symbol = coin + 'usdt'
         self.indicator.set_icon(currpath + "/icons/" + coin + ".png")
 
     """Core methods
@@ -122,6 +129,8 @@ class Indicator():
             return self.api.huobi_symbol_price
         elif self.source == 'Blockchain':
             return self.api.blockchain_btc_price
+        elif self.source == 'Coinsbit':
+            return self.api.coinsbit_price
         else:
             return self.api.blockchain_btc_price
 

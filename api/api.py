@@ -7,10 +7,24 @@ class Api():
 
         These methods manipulate API
     """
+
     def blockchain_btc_price(self, symbol):
         try:
             r = requests.get('https://blockchain.info/ticker')
             return r.json()['USD']['last']
+        except Exception as e:
+            print(e)
+            return None
+
+    def coinsbit_price(self, symbol):
+        try:
+            currency = symbol[:3]
+            market = symbol[3:]
+            market = 'usd' if market == 'usdt' else market
+
+            market = f'{currency}_{market}'.upper()
+            r = requests.get(f'https://coinsbit.io/api/v1/public/ticker?market={market}')
+            return float(r.json()['result']['last'])
         except Exception as e:
             print(e)
             return None
