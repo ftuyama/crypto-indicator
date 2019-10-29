@@ -22,15 +22,11 @@ class Alert():
         else:
             return 0.5
 
-    def symbol_super_gain(self, symbol):
-        if symbol == 'btcusdt':
-            return 0.35
-        elif symbol == 'dockusdt':
-            return 2.0
-        else:
-            return 1.0
-
     def check_alert(self, symbol, price):
+        self.check_alert1(symbol, price)
+        self.check_alert2(symbol, price)
+
+    def check_alert1(self, symbol, price):
         if symbol != self.last_symbol:
             self.last_symbol = symbol
             self.mark_price = None
@@ -42,17 +38,16 @@ class Alert():
 
         delta = 100.0 * (price - self.last_price) / self.last_price
         gain = self.symbol_gain(symbol)
-        super_gain = self.symbol_super_gain(symbol)
         self.last_price = price
 
         self.custom_notification(symbol, price)
 
         if symbol == 'btcusdt':
-            if delta > super_gain:
+            if delta > 2 * gain:
                 self.alert_sound('great.mp3')
             elif delta > gain:
                 self.alert_sound('good.wav')
-            elif delta < -1 * super_gain:
+            elif delta < -2 * gain:
                 self.alert_sound('wrong.wav')
             elif delta < -1 * gain:
                 self.alert_sound('beep.wav')
@@ -60,7 +55,7 @@ class Alert():
         if delta > gain or delta < -1 * gain:
             self.alert_notification(symbol, delta, price)
 
-    def custom_notification(self, symbol, price):
+    def check_alert2(self, symbol, price):
         self.timer += 1
         if self.timer % 30 == 0:
             self.mark_price = price
@@ -70,31 +65,32 @@ class Alert():
             self.mark_price = price
             return
 
-        big_delta = 100.0 * (price - self.mark_price) / self.mark_price
+        delta = 100.0 * (price - self.mark_price) / self.mark_price
         gain = self.symbol_gain(symbol)
 
-        if big_delta > 3 * gain:
+        if delta > 3 * gain:
             self.alert_sound('YES.mp3')
-        elif big_delta > 2 * gain:
+        elif delta > 2 * gain:
             self.alert_sound('great.mp3')
-        elif big_delta > 1 * gain:
+        elif delta > 1 * gain:
             self.alert_sound('good.wav')
-        elif big_delta < -3 * gain:
+        elif delta < -3 * gain:
             self.alert_sound('nuclear.wav')
-        elif big_delta < -2 * gain:
+        elif delta < -2 * gain:
             self.alert_sound('alert.wav')
-        elif big_delta < -1 * gain:
+        elif delta < -1 * gain:
             self.alert_sound('beep.wav')
         else:
             return
 
+        self.alert_notification(symbol, delta, price)
         self.mark_price = price
 
     def alert_notification(self, symbol, delta, price):
         date = time.strftime("%Y-%m-%d %H:%M:%S")
         price_label = f' ${price:n}'
         delta_label = f'{delta:n}' + ' %'
-        notify.Notification.new(symbol + " " + price_label, delta_label + " on " + date, None).show()
+        notify.Notification.new(symbol.upper() + " " + price_label, delta_label + " on " + date, None).show()
 
     def alert_sound(self, sound):
         sound_thread = threading.Thread(target=playsound, args=[f'assets/alerts/{sound}'])
