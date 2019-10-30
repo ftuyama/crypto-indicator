@@ -33,7 +33,7 @@ class Websocket():
     def on_message(self, ws, message):
         self = self.father
         self.btc_price = int(float(json.loads(message)["data"]["c"]))
-        self.alert.check_alert(self.symbol, self.btc_price)
+        self.alert.check_alert('Futures', self.symbol, self.btc_price)
 
         # self.data.append(self.btc_price)
         # self.data = self.data[-120:]

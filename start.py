@@ -142,7 +142,7 @@ class Indicator():
 
         while source == self.source and monitor is not None:
             symbol_price = monitor(self.symbol)
-            self.alert.check_alert(self.symbol, symbol_price)
+            self.alert.check_alert(self.source, self.symbol, symbol_price)
 
             self.indicator.set_label(f' ${symbol_price:n}', '')
             time.sleep(1)

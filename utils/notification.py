@@ -13,6 +13,7 @@ class Alert():
         self.mark_price = None
         self.last_price = None
         self.last_symbol = None
+        self.last_source = None
 
     def symbol_gain(self, symbol):
         if symbol == 'btcusdt':
@@ -22,16 +23,18 @@ class Alert():
         else:
             return 0.5
 
-    def check_alert(self, symbol, price):
+    def check_alert(self, source, symbol, price):
+        if symbol != self.last_symbol or source != self.last_source:
+            self.last_symbol = symbol
+            self.last_source = source
+            self.mark_price = price
+            self.last_price = price
+            return
+
         self.check_alert1(symbol, price)
         self.check_alert2(symbol, price)
 
     def check_alert1(self, symbol, price):
-        if symbol != self.last_symbol:
-            self.last_symbol = symbol
-            self.mark_price = None
-            self.last_price = None
-
         if self.last_price is None:
             self.last_price = price
             return
