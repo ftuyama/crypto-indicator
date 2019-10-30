@@ -27,8 +27,8 @@ class Alert():
         if symbol != self.last_symbol or source != self.last_source:
             self.last_symbol = symbol
             self.last_source = source
-            self.mark_price = price
-            self.last_price = price
+            self.mark_price = None
+            self.last_price = None
             return
 
         self.check_alert1(symbol, price)
