@@ -90,7 +90,7 @@ class Alert():
     def alert_notification(self, symbol, delta, price):
         date = time.strftime("%Y-%m-%d %H:%M:%S")
         price_label = f' ${price:n}'
-        delta_label = f'{delta:n}' + ' %'
+        delta_label = f'{delta:n} %'
         notify.Notification.new(symbol.upper() + " " + price_label, delta_label + " on " + date, None).show()
 
     def alert_sound(self, sound):

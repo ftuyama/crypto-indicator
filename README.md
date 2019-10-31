@@ -1,12 +1,13 @@
-# BTC Price Indicator
+# Crypto Price Indicator
 
-Indicates current cryptocoins (such as BTC) price ticker on Ubuntu navbar, using:
+Indicates cryptocurrency (such as BTC, ETH, KSH) price ticker on Ubuntu navbar, using:
 
 - Binance API
 - Huobi API
 - Blockchain API
 - Binance Futures Websocket
 - Coinsbit
+- P2PB2b
 
 Includes sonore alarms and os native notifications.
 
@@ -21,5 +22,5 @@ python3 start.py &
 
 or
 
-./start.sh
+./run.sh
 ```

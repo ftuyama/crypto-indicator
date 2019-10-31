@@ -29,6 +29,19 @@ class Api():
             print(e)
             return None
 
+    def p2pb2b_price(self, symbol):
+        try:
+            currency = symbol[:3]
+            market = symbol[3:]
+            market = 'usd' if market == 'usdt' else market
+
+            market = f'{currency}_{market}'.upper()
+            r = requests.get(f'https://api.p2pb2b.io/api/v1/public/ticker?market={market}')
+            return float(r.json()['result']['last'])
+        except Exception as e:
+            print(e)
+            return None
+
     def binance_futures_history(self):
         try:
             r = requests.get('https://fapi.binance.com/fapi/v1/klines?symbol=BTCUSDT&interval=1m')

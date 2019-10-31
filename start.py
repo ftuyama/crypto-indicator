@@ -24,7 +24,7 @@ from threading import Thread
 currpath = os.path.dirname(os.path.realpath(__file__))
 
 coins = ['btc', 'eth', 'ae', 'link', 'eos', 'ht', 'dock', 'egt', 'ksh']
-sources = ['Binance Futures', 'Binance', 'Huobi', 'Blockchain', 'Coinsbit']
+sources = ['Binance Futures', 'Binance', 'Huobi', 'Blockchain', 'Coinsbit', 'P2PB2B']
 
 class Indicator():
     def __init__(self):
@@ -131,6 +131,8 @@ class Indicator():
             return self.api.blockchain_btc_price
         elif self.source == 'Coinsbit':
             return self.api.coinsbit_price
+        elif self.source == 'P2PB2B':
+            return self.api.p2pb2b_price
         else:
             return self.api.blockchain_btc_price
 
